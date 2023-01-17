@@ -1,14 +1,20 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { EmployeeTier } from './Employee.model';
 import { EmployeesService } from './employees.service';
+import { EmployeeSearchDto } from './EmployeeSearch.dto';
+import { EmployeeUpdateDto } from './EmployeeUpdate.dto';
 
 @Controller('employees')
 export class EmployeesController {
   constructor(private employeeService: EmployeesService) {}
 
   @Get()
-  getAllEmployees() {
-    //todo: implement
-    return this.employeeService.getAllEmployees();
+  getAllEmployees(@Query() param: EmployeeSearchDto) {
+    if (Object.keys(param).length) {
+      return this.employeeService.employeeSearch(param);
+    } else {
+      return this.employeeService.getAllEmployees();
+    }
   }
 
   @Post()
@@ -17,7 +23,7 @@ export class EmployeesController {
     @Body('lastName') lastName: string,
     @Body('designation') designation: string,
     @Body('nearestCity') nearestCity: string,
-    @Body('tier') tier: number,
+    @Body('tier') tier: EmployeeTier,
   ) {
     return this.employeeService.createEmployee(
       firstName,
@@ -26,5 +32,19 @@ export class EmployeesController {
       nearestCity,
       tier,
     );
+  }
+
+  @Get('/:id')
+  getEmployeebyId(@Param('id') id: string) {
+    return this.employeeService.getEmployeeById(id);
+  }
+
+  @Put('/:id/city')
+  updateEmployee(
+    @Param('id') id: string,
+    @Body() employeeUpdateDto: EmployeeUpdateDto,
+  ) {
+    employeeUpdateDto.id = id;
+    return this.employeeService.updateEmployee(employeeUpdateDto);
   }
 }
