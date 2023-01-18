@@ -13,11 +13,12 @@ import {
 } from '@nestjs/common';
 import { NotFoundException } from '@nestjs/common/exceptions/not-found.exception';
 import { EmployeeTierValidationPipe } from 'src/employee-tier-validation.pipe';
-import { EmployeeTier } from './Employee.model';
-import { EmployeeCreateDto } from './EmployeeCreate.dto';
-import { EmployeesService } from './employees.service';
+import { EmployeeTier } from './Employee.enum';
+import { EmployeeCreateDto } from './dto/EmployeeCreate.dto';
+import { EmployeesService } from './service/employees.service';
 import { EmployeeSearchDto } from './EmployeeSearch.dto';
 import { EmployeeUpdateDto } from './EmployeeUpdate.dto';
+import { Employee } from './schemas/Employee.schema';
 
 @Controller('employees')
 export class EmployeesController {
@@ -25,22 +26,26 @@ export class EmployeesController {
 
   @Get()
   @UsePipes(ValidationPipe)
-  getAllEmployees(@Query() param: EmployeeSearchDto) {
-    if (Object.keys(param).length) {
+  async getAllEmployees(@Query() param: EmployeeSearchDto): Promise<Employee[]> {
+   /*  if (Object.keys(param).length) {
       return this.employeeService.employeeSearch(param);
     } else {
       return this.employeeService.getAllEmployees();
-    }
+    } */
+    return await this.employeeService.getAllEmployees();
   }
 
   @Post()
   @UsePipes(ValidationPipe)
   @UsePipes(new EmployeeTierValidationPipe())
-  createEmployee(@Body() employeeCreateDto: EmployeeCreateDto, tier: string) {
+  createEmployee(
+    @Body() employeeCreateDto: EmployeeCreateDto,
+    tier: string,
+  ): Promise<Employee> {
     return this.employeeService.createEmployee(employeeCreateDto);
   }
 
-  @Get('/:id')
+ /*  @Get('/:id')
   getEmployeebyId(@Param('id') id: string) {
     return this.employeeService.getEmployeeById(id);
   }
@@ -60,5 +65,5 @@ export class EmployeesController {
     if (!this.employeeService.deleteEmployee(id)) {
       throw new NotFoundException('Employee does not exist.');
     }
-  }
+  } */
 }
