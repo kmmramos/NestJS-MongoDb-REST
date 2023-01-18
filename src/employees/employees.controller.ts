@@ -8,9 +8,13 @@ import {
   Post,
   Put,
   Query,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { NotFoundException } from '@nestjs/common/exceptions/not-found.exception';
+import { EmployeeTierValidationPipe } from 'src/employee-tier-validation.pipe';
 import { EmployeeTier } from './Employee.model';
+import { EmployeeCreateDto } from './EmployeeCreate.dto';
 import { EmployeesService } from './employees.service';
 import { EmployeeSearchDto } from './EmployeeSearch.dto';
 import { EmployeeUpdateDto } from './EmployeeUpdate.dto';
@@ -20,6 +24,7 @@ export class EmployeesController {
   constructor(private employeeService: EmployeesService) {}
 
   @Get()
+  @UsePipes(ValidationPipe)
   getAllEmployees(@Query() param: EmployeeSearchDto) {
     if (Object.keys(param).length) {
       return this.employeeService.employeeSearch(param);
@@ -29,20 +34,10 @@ export class EmployeesController {
   }
 
   @Post()
-  createEmployee(
-    @Body('firstName') firstName: string,
-    @Body('lastName') lastName: string,
-    @Body('designation') designation: string,
-    @Body('nearestCity') nearestCity: string,
-    @Body('tier') tier: EmployeeTier,
-  ) {
-    return this.employeeService.createEmployee(
-      firstName,
-      lastName,
-      designation,
-      nearestCity,
-      tier,
-    );
+  @UsePipes(ValidationPipe)
+  @UsePipes(new EmployeeTierValidationPipe())
+  createEmployee(@Body() employeeCreateDto: EmployeeCreateDto, tier: string) {
+    return this.employeeService.createEmployee(employeeCreateDto);
   }
 
   @Get('/:id')
