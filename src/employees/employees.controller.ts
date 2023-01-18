@@ -1,4 +1,15 @@
-import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common/exceptions/not-found.exception';
 import { EmployeeTier } from './Employee.model';
 import { EmployeesService } from './employees.service';
 import { EmployeeSearchDto } from './EmployeeSearch.dto';
@@ -46,5 +57,13 @@ export class EmployeesController {
   ) {
     employeeUpdateDto.id = id;
     return this.employeeService.updateEmployee(employeeUpdateDto);
+  }
+
+  @Delete('/:id')
+  @HttpCode(204)
+  deleteEmployee(@Param('id') id: string) {
+    if (!this.employeeService.deleteEmployee(id)) {
+      throw new NotFoundException('Employee does not exist.');
+    }
   }
 }

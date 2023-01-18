@@ -54,8 +54,14 @@ export class EmployeesService {
 
   updateEmployee(employeeUpdateDto: EmployeeUpdateDto): Employee {
     const { id, city } = employeeUpdateDto;
-    let employee = this.getEmployeeById(id);
+    const employee = this.getEmployeeById(id);
     employee.nearestCity = city;
     return employee;
+  }
+
+  deleteEmployee(id: string) {
+    const employees = this.getAllEmployees();
+    this.employees = employees.filter((employee) => employee.id != id);
+    return employees.length != this.employees.length;
   }
 }
